@@ -1,0 +1,42 @@
+name: Deploy to EKS
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-south-1
+
+    - name: Login to ECR
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build & Push Backend
+      run: |
+        cd backend
+        mvn package
+        docker build -t ${{ secrets.ECR_REPO_BACKEND }} .
+        docker push ${{ secrets.ECR_REPO_BACKEND }}
+
+    - name: Build & Push Frontend
+      run: |
+        cd frontend
+        docker build -t ${{ secrets.ECR_REPO_FRONTEND }} .
+        docker push ${{ secrets.ECR_REPO_FRONTEND }}
+
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --region ap-south-1 --name mern-EKS-deployment
+
+    - name: Apply K8s manifests
+      run: kubectl apply -f k8s/
