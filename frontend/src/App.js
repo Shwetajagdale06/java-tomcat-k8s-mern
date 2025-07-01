@@ -24,7 +24,7 @@ function App() {
 
   return (
     <div>
-      <h2>Add User</h2>
+      <h2>Add User.....</h2>
       <input value={name} onChange={e => setName(e.target.value)} />
       <button onClick={addUser}>Add</button>
       <ul>
