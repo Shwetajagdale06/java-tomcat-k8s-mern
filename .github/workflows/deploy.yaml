@@ -36,7 +36,7 @@ jobs:
 
     - name: Update kubeconfig
       run: |
-        aws eks update-kubeconfig --region ap-south-1 --name mern-EKS-deployment
+        aws eks update-kubeconfig --region ap-south-1 --name java-react-eks
 
     - name: Apply K8s manifests
       run: kubectl apply -f k8s/
